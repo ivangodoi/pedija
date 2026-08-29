@@ -1,0 +1,5 @@
+# Config de referencia para testes locais com Wrangler.
+# NOTA: em Cloudflare Pages, o binding KV e criado no painel (Settings > Functions > KV namespace bindings),
+# nao aqui. Este arquivo e util para rodar `npx wrangler pages dev .` localmente.
+name = "mercado-demo"
+compatibility_date = "2026-01-01"

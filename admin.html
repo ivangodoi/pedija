@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Mercado</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --green-light: #dcfce7;
+      --amber: #f59e0b;
+      --bg: #f4f6f5;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text2: #334155;
+      --text3: #64748b;
+      --border: #e5e9e6;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --shadow: 0 4px 16px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.12);
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: linear-gradient(135deg, #111827 0%, #1f2937 55%, #374151 100%);
+      color: white;
+      padding: 18px 20px;
+      position: sticky; top: 0; z-index: 40;
+      box-shadow: var(--shadow);
+    }
+    .head-in { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .head-in h1 { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .head-in h1 .ic { font-size: 1.35rem; }
+    .head-in .sub { font-size: 0.78rem; opacity: 0.75; font-weight: 500; }
+    .head-in a {
+      color: white; text-decoration: none; font-weight: 700; font-size: 0.85rem;
+      background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25);
+      padding: 9px 15px; border-radius: 10px; display: inline-flex; gap: 6px; align-items: center;
+    }
+
+    nav { max-width: 1080px; margin: 16px auto 0; padding: 0 18px; display: flex; gap: 8px; flex-wrap: wrap; }
+    nav button {
+      background: white; border: 1.5px solid var(--border); color: var(--text2);
+      padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.88rem;
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    nav button.active { background: var(--green); border-color: var(--green); color: white; box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
+
+    main { max-width: 1080px; margin: 0 auto; padding: 22px 18px 60px; }
+    .tab { display: none; }
+    .tab.active { display: block; animation: fade .2s; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .filtros { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 14px; scrollbar-width: none; }
+    .filtros::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: none; padding: 8px 13px; border-radius: 999px;
+      background: white; border: 1.5px solid var(--border);
+      font-size: 0.8rem; font-weight: 700; color: var(--text2); cursor: pointer;
+    }
+    .chip.active { background: var(--green); border-color: var(--green); color: white; }
+    .chip .n { opacity: 0.65; font-weight: 600; }
+
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--green); color: white; border: none;
+      border-radius: 10px; padding: 10px 16px;
+      font-size: 0.86rem; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: background .15s;
+    }
+    .btn:hover { background: var(--green-dark); }
+    .btn.ghost { background: white; color: var(--text2); border: 1.5px solid var(--border); }
+    .btn.ghost:hover { border-color: var(--green); color: var(--green-dark); }
+    .btn.danger { background: var(--danger); }
+    .btn.danger:hover { background: #b91c1c; }
+
+    .count-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 18px; }
+    .kpi { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+    .kpi b { display: block; font-size: 1.4rem; font-weight: 800; }
+    .kpi small { color: var(--text3); font-size: 0.76rem; font-weight: 600; }
+    .kpi.novo b { color: var(--amber); }
+
+    .ordens { display: grid; gap: 14px; }
+    .ordem { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+    .ordem.hd { border-width: 2px; border-color: #fcd34d; }
+    .ordem.cancelada { opacity: 0.62; }
+    .ordem .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .ordem .codigo { font-size: 0.95rem; font-weight: 800; }
+    .ordem .data { color: var(--text3); font-size: 0.75rem; font-weight: 500; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.76rem; font-weight: 800; color: white;
+      padding: 5px 12px; border-radius: 999px;
+    }
+    .ordem .cliente { font-weight: 700; font-size: 0.9rem; }
+    .ordem .endereco { color: var(--text2); font-size: 0.84rem; margin: 2px 0; }
+    .ordem .endereco small { display: block; color: var(--text3); }
+    .ordem .itens { background: #f8faf8; border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+    .ordem .itens .l { display: flex; justify-content: space-between; gap: 10px; font-size: 0.84rem; padding: 2px 0; color: var(--text2); }
+    .ordem .itens .l .s { font-weight: 600; }
+    .ordem .pagamento { font-size: 0.82rem; color: var(--text2); }
+    .ordem .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .ordem .foot .total { font-weight: 800; font-size: 1.05rem; }
+    .acc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .acc .btn { font-size: 0.8rem; padding: 9px 14px; }
+
+    /* produtos */
+    .searchrow { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 14px; }
+    .searchrow input, .searchrow select {
+      padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.88rem; font-family: inherit; background: white; color: var(--text);
+      outline: none;
+    }
+    .searchrow input { flex: 1; min-width: 180px; }
+    .searchrow input:focus, .searchrow select:focus { border-color: var(--green); }
+
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 11px 12px; text-align: left; font-size: 0.84rem; border-bottom: 1px solid var(--border); }
+    th { background: #f8faf8; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text3); }
+    tr:last-child td { border-bottom: none; }
+    td .pr { font-weight: 700; white-space: nowrap; }
+    .disp {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 0.74rem; font-weight: 700;
+      padding: 4px 9px; border-radius: 999px; cursor: pointer; border: none;
+    }
+    .disp.on { background: var(--green-light); color: var(--green-dark); }
+    .disp.off { background: #f3f4f5; color: var(--text3); }
+    .mini-btn {
+      background: #f3f4f5; border: none; border-radius: 8px;
+      padding: 7px 11px; font-size: 0.76rem; font-weight: 700; cursor: pointer; color: var(--text2); font-family: inherit;
+    }
+    .mini-btn:hover { background: #e5e9e6; }
+    .mini-btn.red { color: var(--danger); }
+    .mini-btn.red:hover { background: var(--danger-light); }
+
+    .form-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 18px; }
+    .form-card h3 { font-size: 0.98rem; font-weight: 800; margin-bottom: 14px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text2); margin-bottom: 5px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 11px 12px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.88rem; font-family: inherit; background: white; outline: none; color: var(--text);
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); }
+    .hint { font-size: 0.74rem; color: var(--text3); margin-top: 4px; }
+
+    .alert { border-radius: 10px; padding: 12px 14px; font-size: 0.86rem; font-weight: 600; margin-bottom: 14px; display: none; }
+    .alert.show { display: block; animation: fade .2s; }
+    .alert.ok { background: var(--green-light); color: var(--green-dark); border: 1px solid #bbf7d0; }
+    .alert.err { background: var(--danger-light); color: #b91c1c; border: 1px solid #fecaca; }
+
+    .empty { text-align: center; color: var(--text3); padding: 40px 16px; }
+    .empty .big { font-size: 2.6rem; margin-bottom: 8px; }
+
+    .demo-head p { font-size: 0.85rem; color: var(--text3); }
+    .passo { display: flex; gap: 14px; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+    .passo .numero {
+      flex: none; width: 34px; height: 34px; border-radius: 999px;
+      background: var(--green); color: white; font-weight: 800; font-size: 0.95rem;
+      display: grid; place-items: center;
+    }
+    .passo .conteudo { flex: 1; }
+    .passo .conteudo b { font-size: 0.92rem; }
+    .passo .conteudo p { font-size: 0.84rem; color: var(--text2); margin: 6px 0; }
+    .passo .conteudo .fazer {
+      background: #f0fdf4; border: 1px dashed #86efac; color: #166534;
+      border-radius: 10px; padding: 9px 12px; font-size: 0.8rem; font-weight: 600;
+    }
+    .passo .conteudo .destaque {
+      background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+      border-radius: 10px; padding: 12px 14px; font-weight: 600;
+    }
+
+    @media (max-width: 720px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      table { min-width: 640px; }
+      .tablewrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="head-in">
+      <div>
+        <h1><span class="ic">🛠️</span> Painel do Mercado</h1>
+        <div class="sub" id="subNome">Mercado Bom Preço</div>
+      </div>
+      <a href="index.html">← Ver loja do cliente</a>
+    </div>
+  </header>
+
+  <nav>
+    <button class="active" data-tab="pedidos" onclick="tab('pedidos')">📦 Pedidos</button>
+    <button data-tab="produtos" onclick="tab('produtos')">🛒 Produtos</button>
+    <button data-tab="config" onclick="tab('config')">⚙️ Configurações</button>
+    <button data-tab="demo" onclick="tab('demo')">📋 Apresentação</button>
+  </nav>
+
+  <main>
+    <!-- PEDIDOS -->
+    <section class="tab active" id="tab-pedidos">
+      <div class="count-kpi" id="kpis"></div>
+      <div class="toolbar">
+        <div class="filtros" id="filtrosStatus" style="flex:1"></div>
+        <button class="btn ghost" onclick="listarPedidos(true)">🔄 Atualizar</button>
+      </div>
+      <div class="ordens" id="ordens"></div>
+      <div class="empty" id="semPedidos">
+        <div class="big">🛍️</div>
+        <b>Nenhum pedido por aqui ainda.</b>
+        <p style="margin-top:4px">Peça pelo app (loja do cliente) neste mesmo navegador e o pedido aparece aqui.</p>
+        <button class="btn" style="margin-top:14px" onclick="pedidoTeste()">Criar pedido de teste</button>
+      </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section class="tab" id="tab-produtos">
+      <div class="searchrow">
+        <input id="buscaProd" placeholder="Buscar produto...">
+        <select id="filtroCat"><option value="">Todas as categorias</option></select>
+        <button class="btn" onclick="abrirFormProduto()">＋ Novo produto</button>
+      </div>
+
+      <div class="form-card" id="formProduto" style="display:none">
+        <h3 id="formProdutoTitulo">Novo produto</h3>
+        <input type="hidden" id="p_id">
+        <div class="grid2">
+          <div class="field"><label>Nome do produto *</label><input id="p_nome" placeholder="Ex.: Arroz Tipo 1"></div>
+          <div class="field"><label>Categoria *</label><input id="p_cat" list="catsList" placeholder="Ex.: Mercearia"></div>
+          <datalist id="catsList"></datalist>
+          <div class="field"><label>Preço (R$) *</label><input id="p_preco" type="number" step="0.01" min="0" placeholder="0.00"></div>
+          <div class="field"><label>Emoji</label><input id="p_emoji" maxlength="4" placeholder="🥕"></div>
+          <div class="field"><label>Unidade</label><input id="p_unidade" placeholder="kg, un, 1kg..."></div>
+        </div>
+        <div class="field"><label>Descrição curta</label><input id="p_desc" placeholder="Ex.: Saco 1 kg"></div>
+        <div class="toolbar">
+          <button class="btn" onclick="salvarProduto()">✓ Salvar produto</button>
+          <button class="btn ghost" onclick="fecharFormProduto()">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="toolbar" style="margin-bottom:12px">
+        <button class="btn" onclick="importarExcel()">📥 Importar catálogo (Excel/CSV)</button>
+        <button class="btn ghost" onclick="exportarExcel()">📤 Exportar catálogo (Excel)</button>
+        <button class="btn ghost" onclick="baixarModelo()">⬇️ Baixar modelo</button>
+        <input type="file" id="fileImport" accept=".xlsx,.csv" style="display:none">
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Emoji</th><th>Unid.</th><th>Disponível</th><th></th></tr></thead>
+          <tbody id="tbodyProd"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section class="tab" id="tab-config">
+      <div class="form-card">
+        <h3>Dados do mercado</h3>
+        <div class="grid2">
+          <div class="field"><label>Nome do mercado</label><input id="c_nome"></div>
+          <div class="field"><label>Slogan (mostra no topo)</label><input id="c_slogan"></div>
+          <div class="field"><label>WhatsApp (com DDD)</label><input id="c_whats"></div>
+          <div class="field"><label>Horário de funcionamento</label><input id="c_horario"></div>
+          <div class="field"><label>Taxa de entrega (R$)</label><input id="c_taxa" type="number" step="0.01" min="0"></div>
+          <div class="field"><label>Frete grátis acima de (R$)</label><input id="c_freteGratis" type="number" step="0.01" min="0"></div>
+        </div>
+        <div class="field" style="max-width:320px"><label>Pedido mínimo (R$)</label><input id="c_minimo" type="number" step="0.01" min="0"></div>
+        <button class="btn" onclick="salvarConfig()">💾 Salvar configurações</button>
+      </div>
+      <div class="form-card">
+        <h3>Dados do sistema</h3>
+        <p style="font-size:0.85rem;color:var(--text3);margin-bottom:14px">
+          Este app guarda os dados <b>neste navegador/aparelho</b> (localStorage). Pedidos feitos na loja e o
+          gerenciamento do painel funcionam quando usados no mesmo navegador — ideal para teste e uso de um único aparelho
+          na operação. Para vários celulares/cliente+mercado em aparelhos diferentes, será necessário um servidor (back-end).
+        </p>
+        <button class="btn ghost" onclick="exportarJSON()">⬇️ Backup dos pedidos (JSON)</button>
+      </div>
+    </section>
+
+    <!-- APRESENTAÇÃO -->
+    <section class="tab" id="tab-demo">
+      <div class="form-card demo-head">
+        <h3>🎤 Roteiro de apresentação — 2 minutos</h3>
+        <p>Este é o passo a passo para demonstrar o app ao dono do mercado. Cada passo tem o que <b>falar</b> e o que <b>fazer</b> ao vivo na tela.</p>
+        <div class="toolbar" style="margin-top:14px">
+          <button class="btn" onclick="abrirLojinha()">👉 Abrir a loja (index.html)</button>
+          <button class="btn ghost" onclick="pedidoTeste()">➕ Pedido de teste</button>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">1</div>
+        <div class="conteudo">
+          <b>Abra a loja e mostre o catálogo</b>
+          <p>Clique em "abrir a loja" e deixe o painel de lado. Diga: <i>"Esta é a vitrine digital do mercado — com fotos, preços e categorias, igual ao que o cliente já conhece."</i></p>
+          <div class="fazer">Faça: mude entre as categorias (padaria, bebidas...) e digite algo na busca (ex.: "arroz").</div>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">2</div>
+        <div class="conteudo">
+          <b>Monte um pedido ao vivo</b>
+          <p>Diga: <i>"O cliente escolhe tudo e vai vendo o carrinho na parte de baixo — total sempre atualizado."</i></p>
+          <div class="fazer">Faça: toque em "Adicionar" em 3 produtos e clique no carrinho.</div>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">3</div>
+        <div class="conteudo">
+          <b>Finalize o checkout</b>
+          <p>Diga: <i>"Entrega com dados completos e pagamento escolhido na hora — dinheiro, PIX ou cartão na maquininha."</i></p>
+          <div class="fazer">Faça: preencha nome, endereço e bairro, escolha "PIX" e confirme. Mostre o <b>código do pedido</b> na tela.</div>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">4</div>
+        <div class="conteudo">
+          <b>Mostre o pedido chegando no painel</b>
+          <p>Volte ao painel (aba Pedidos) e diga: <i>"Na hora, o pedido chega aqui com endereço, itens e forma de pagamento. O mercado acompanha cada etapa até a entrega."</i></p>
+          <div class="fazer">Faça: clique em "Confirmar", "Iniciar preparo" e "Enviar p/ entrega" para mostrar o status mudando.</div>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">5</div>
+        <div class="conteudo">
+          <b>Mostre o rastreio do cliente</b>
+          <p>Diga: <i>"O cliente acompanha o pedido pela tela do celular com o código recebido."</i></p>
+          <div class="fazer">Faça: na loja, toque em "Rastrear meu pedido", digite o código e mostre a linha do tempo.</div>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">6</div>
+        <div class="conteudo">
+          <b>Produtos, planilha e personalização</b>
+          <p>Diga: <i>"O mercado cadastra produtos na hora ou importa direto de uma planilha Excel que ele já usa. Nome, logotipo, taxa e frete grátis são todos ajustáveis."</i></p>
+          <div class="fazer">Faça: vá na aba Produtos, mostre o botão de importar e o "Baixar modelo". Na aba Configurações, troque o nome do mercado na frente deles.</div>
+        </div>
+      </div>
+
+      <div class="passo">
+        <div class="numero">💡</div>
+        <div class="conteudo">
+          <b>Feche a venda</b>
+          <p class="destaque">"Com esse sistema o seu mercado nunca fica fora do alcance dos clientes — que pedem pelo celular e recebem em casa. Podemos ativar com os seus produtos e a sua regra de entrega no valor que combinarmos."</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="alert" id="toast"></div>
+
+  <script src="app.js"></script>
+  <script src="xlsx.full.min.js"></script>
+  <script>
+    const M = window.MERCADO;
+    let tabAtual = 'pedidos';
+    let filtroStatus = 'novo';
+
+    function tab(t) {
+      tabAtual = t;
+      document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+      document.querySelectorAll('.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + t));
+      if (t === 'pedidos') listarPedidos();
+      if (t === 'produtos') renderProdutos();
+      if (t === 'config') carregarConfig();
+      if (t === 'demo') document.getElementById('subNome').textContent = M.config().nomeMercado;
+    }
+
+    function abrirLojinha() {
+      window.location.href = 'index.html';
+    }
+
+    function toast(msg, tipo) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'alert show ' + (tipo || 'ok');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
+    function listarPedidos(forcar) {
+      const todos = M.ordernarPedidos(M.pedidos());
+      const cfg = M.config();
+      document.getElementById('subNome').textContent = cfg.nomeMercado;
+
+      document.getElementById('kpis').innerHTML = [
+        { l: 'Novos', v: todos.filter(p => p.status === 'novo').length, cls: 'novo' },
+        { l: 'Em andamento', v: todos.filter(p => ['confirmado', 'em_preparo', 'em_transito'].includes(p.status)).length, cls: '' },
+        { l: 'Entregues', v: todos.filter(p => p.status === 'entregue').length, cls: '' },
+        { l: 'Cancelados', v: todos.filter(p => p.status === 'cancelado').length, cls: '' },
+      ].map(k => '<div class="kpi ' + k.cls + '"><b>' + k.v + '</b><small>' + k.l + '</small></div>').join('');
+
+      const chips = document.getElementById('filtrosStatus');
+      chips.innerHTML = '';
+      [{ id: 'novo', l: '🆕 Novos' }, { id: 'em_andamento', l: '👀 Em andamento' }, { id: 'entregue', l: '✅ Entregues' }, { id: 'cancelado', l: '❌ Cancelados' }, { id: 'todos', l: '🗂️ Todos' }].forEach(f => {
+        const c = document.createElement('button');
+        c.className = 'chip' + (filtroStatus === f.id ? ' active' : '');
+        c.innerHTML = f.l + ' <span class="n">' + contar(f.id, todos).length + '</span>';
+        c.onclick = () => { filtroStatus = f.id; listarPedidos(); };
+        chips.appendChild(c);
+      });
+
+      const lista = contar(filtroStatus, todos);
+      const el = document.getElementById('ordens');
+      el.innerHTML = '';
+      document.getElementById('semPedidos').style.display = lista.length ? 'none' : 'block';
+      if (todos.length === 0) return;
+
+      lista.forEach(p => {
+        const st = M.statusInfo(p.status);
+        const html = document.createElement('div');
+        html.className = 'ordem' + (p.status === 'novo' ? ' hd' : '') + (p.status === 'cancelado' ? ' cancelada' : '');
+        html.innerHTML =
+          '<div class="top">' +
+            '<div>' +
+              '<span class="codigo">' + p.codigo + '</span> <span class="data">· ' + fmtData(p.criadoEm) + '</span>' +
+            '</div>' +
+            '<span class="tag" style="background:' + st.cor + '">' + rotulo(st.id) + '</span>' +
+          '</div>' +
+          '<div class="cliente">' + esc(p.cliente.nome) + ' <small style="color:var(--text3);font-weight:500">' + esc(p.cliente.tel) + '</small></div>' +
+          '<div class="endereco">📍 ' + esc(p.cliente.rua) + ' — ' + esc(p.cliente.bairro) + (p.cliente.comp ? ', ' + esc(p.cliente.comp) : '') +
+            (p.cliente.obs ? '<small>📝 ' + esc(p.cliente.obs) + '</small>' : '') + '</div>' +
+          '<div class="itens">' +
+            p.itens.map(i => '<div class="l"><span>' + i.qtd + 'x ' + esc(i.nome) + '</span><span class="s">' + M.formatarPreco(i.subtotal) + '</span></div>').join('') +
+            '<div class="l"><span>Entrega</span><span class="s">' + (p.entrega === 0 ? 'Grátis' : M.formatarPreco(p.entrega)) + '</span></div>' +
+          '</div>' +
+          '<div class="pagamento">💳 ' + pagTxt(p.pagamento) + '</div>' +
+          '<div class="foot"><div class="total">Total: ' + M.formatarPreco(p.total) + '</div>' + accoesHTML(p) + '</div>';
+        el.appendChild(html);
+      });
+    }
+
+    function contar(f, todos) {
+      if (f === 'todos') return todos;
+      if (f === 'em_andamento') return todos.filter(p => ['confirmado', 'em_preparo', 'em_transito'].includes(p.status));
+      return todos.filter(p => p.status === f);
+    }
+
+    function rotulo(id) {
+      return M.statusInfo(id).rotulo;
+    }
+    function pagTxt(pag) {
+      const m = { dinheiro: '💵 Dinheiro', pix: '⚡ PIX', cartao: '💳 Cartão' }[pag.metodo] || 'Diversos';
+      return m + (pag.troco ? ' — troco para ' + M.formatarPreco(pag.troco) : '');
+    }
+
+    function accoesHTML(p) {
+      if (p.status === 'entregue' || p.status === 'cancelado') return '';
+      const prox = { novo: 'confirmado', confirmado: 'em_preparo', em_preparo: 'em_transito', em_transito: 'entregue' }[p.status];
+      const rot = { confirmado: '✅ Confirmar', em_preparo: '👨‍🍳 Iniciar preparo', em_transito: '🛵 Enviar p/ entrega', entregue: '✔ Marcar entregue' }[prox];
+      const b = document.createElement('div');
+      b.className = 'acc';
+      b.innerHTML =
+        '<button class="btn" onclick="avancar(\'' + p.codigo + '\',\'' + prox + '\')">' + rot + '</button>' +
+        (p.status === 'novo' ? '<button class="btn danger" onclick="cancelar(\'' + p.codigo + '\')">✕ Cancelar</button>' : '');
+      return b.outerHTML;
+    }
+
+    function avancar(codigo, status) {
+      M.atualizarStatus(codigo, status);
+      toast('Pedido ' + codigo + ' → ' + rotulo(status));
+      listarPedidos();
+    }
+    function cancelar(codigo) {
+      const p = M.buscarPedido(codigo);
+      if (p && confirm('Cancelar o pedido ' + codigo + ' de ' + p.cliente.nome + '?')) {
+        M.atualizarStatus(codigo, 'cancelado');
+        toast('Pedido ' + codigo + ' cancelado', 'err');
+        listarPedidos();
+      }
+    }
+
+    function pedidoTeste() {
+      const items = M.produtos().filter(p => p.disponivel !== false).slice(0, 3);
+      const p = M.criarPedido({
+        itens: items.map((x, i) => ({ produtoId: x.id, nome: x.nome, qtd: i + 1, precoUnit: x.preco, subtotal: x.preco * (i + 1) })),
+        subtotal: items.reduce((s, x, i) => s + x.preco * (i + 1), 0),
+        entrega: 6.99,
+        total: 0,
+        cliente: { nome: 'Cliente de Teste', tel: '(11) 99999-0000', rua: 'Rua das Flores, 123', bairro: 'Centro', comp: '', obs: 'Pedido de demonstração' },
+        pagamento: { metodo: 'pix', troco: null },
+      });
+      p.total = p.subtotal + p.entrega;
+      const lista = M.pedidos();
+      const idx = lista.findIndex(x => x.codigo === p.codigo);
+      lista[idx].total = p.total;
+      M.salvarPedidos(lista);
+      toast('Pedido de teste criado: ' + p.codigo);
+      listarPedidos();
+    }
+
+    function renderProdutos() {
+      const cfg = M.config();
+      document.getElementById('subNome').textContent = cfg.nomeMercado;
+      const catsSel = document.getElementById('filtroCat');
+      if (!catsSel.dataset.init) {
+        catsSel.dataset.init = '1';
+        catsSel.innerHTML = '<option value="">Todas as categorias</option>' + M.categorias().map(a => '<option>' + a.nome + '</option>').join('');
+      }
+      const catAviso = document.getElementById('filtroCat').value;
+      const termo = document.getElementById('buscaProd').value.trim().toLowerCase();
+      let lista = M.produtos();
+      if (catAviso) lista = lista.filter(p => p.categoria === catAviso);
+      if (termo) lista = lista.filter(p => (p.nome + ' ' + p.categoria).toLowerCase().includes(termo));
+
+      const dl = document.getElementById('catsList');
+      dl.innerHTML = M.categorias().map(a => '<option value="' + a.nome + '">').join('');
+
+      document.getElementById('tbodyProd').innerHTML = lista.map(p =>
+        '<tr>' +
+          '<td style="font-size:1.3rem">' + (p.emoji || '🛒') + '</td>' +
+          '<td><b>' + esc(p.nome) + '</b>' + (p.descricao ? '<br><small style="color:var(--text3)">' + esc(p.descricao) + '</small>' : '') + '</td>' +
+          '<td>' + esc(p.categoria) + '</td>' +
+          '<td class="pr">' + M.formatarPreco(p.preco) + '</td>' +
+          '<td>' + esc(p.emoji || '') + '</td>' +
+          '<td>' + esc(p.unidade || '') + '</td>' +
+          '<td><button class="disp ' + (p.disponivel === false ? 'off' : 'on') + '" onclick="alternarDisp(\'' + p.id + '\')">' + (p.disponivel === false ? 'Indisponível' : 'Disponível') + '</button></td>' +
+          '<td style="white-space:nowrap">' +
+            '<button class="mini-btn" onclick="editarProduto(\'' + p.id + '\')">Editar</button> ' +
+            '<button class="mini-btn red" onclick="excluirProduto(\'' + p.id + '\')">Excluir</button>' +
+          '</td>' +
+        '</tr>'
+      ).join('') || '<tr><td colspan="8"><div class="empty"><div class="big">🧺</div>Nenhum produto encontrado.</div></td></tr>';
+    }
+
+    document.getElementById('buscaProd').addEventListener('input', renderProdutos);
+    document.getElementById('filtroCat').addEventListener('change', renderProdutos);
+
+    function abrirFormProduto(p) {
+      document.getElementById('formProduto').style.display = 'block';
+      document.getElementById('formProdutoTitulo').textContent = p ? 'Editar produto' : 'Novo produto';
+      const f = id => document.getElementById(id);
+      f('p_id').value = p ? p.id : '';
+      f('p_nome').value = p ? p.nome : '';
+      f('p_cat').value = p ? p.categoria : '';
+      f('p_preco').value = p ? p.preco : '';
+      f('p_emoji').value = p ? (p.emoji || '') : '';
+      f('p_unidade').value = p ? (p.unidade || '') : '';
+      f('p_desc').value = p ? (p.descricao || '') : '';
+      document.getElementById('formProduto').scrollIntoView({ behavior: 'smooth' });
+    }
+    function fecharFormProduto() {
+      document.getElementById('formProduto').style.display = 'none';
+    }
+    function salvarProduto() {
+      const f = id => document.getElementById(id);
+      const nome = f('p_nome').value.trim();
+      const cat = f('p_cat').value.trim();
+      const preco = parseFloat(f('p_preco').value.replace(',', '.')) || parseFloat(f('p_preco').value) || 0;
+      if (!nome || !cat || preco <= 0) { toast('Preencha nome, categoria e preço válido.', 'err'); return; }
+      const lista = M.produtos();
+      const id = f('p_id').value || 'p' + Date.now().toString(36);
+      const dados = {
+        id, nome, categoria: cat, preco,
+        unidade: f('p_unidade').value.trim() || 'un',
+        emoji: f('p_emoji').value.trim() || '🛒',
+        descricao: f('p_desc').value.trim(),
+        disponivel: true,
+      };
+      const idx = lista.findIndex(x => x.id === id);
+      if (idx >= 0) { const prev = lista[idx]; lista[idx] = Object.assign({}, prev, dados); }
+      else lista.push(dados);
+      M.salvarProdutos(lista);
+      fecharFormProduto();
+      renderProdutos();
+      toast('Produto salvo!');
+    }
+    function editarProduto(id) {
+      abrirFormProduto(M.produtos().find(p => p.id === id));
+    }
+    function excluirProduto(id) {
+      const p = M.produtos().find(x => x.id === id);
+      if (p && confirm('Excluir "' + p.nome + '"?')) {
+        M.salvarProdutos(M.produtos().filter(x => x.id !== id));
+        renderProdutos();
+        toast('Produto excluído.', 'err');
+      }
+    }
+    function alternarDisp(id) {
+      const lista = M.produtos();
+      const p = lista.find(x => x.id === id);
+      p.disponivel = p.disponivel === false ? true : false;
+      M.salvarProdutos(lista);
+      renderProdutos();
+    }
+
+    function importarExcel() {
+      document.getElementById('fileImport').click();
+    }
+    document.getElementById('fileImport').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          let linhas;
+          if (file.name.toLowerCase().endsWith('.csv')) {
+            linhas = parseCSV(ev.target.result);
+          } else {
+            const wb = XLSX.read(ev.target.result, { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            linhas = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          }
+          const resultado = converterLinhas(linhas);
+          if (!resultado.length) { toast('Nenhum produto válido encontrado no arquivo.', 'err'); return; }
+          const lista = M.produtos();
+          const idsExistentes = {};
+          lista.forEach(p => idsExistentes[p.nome.toLowerCase()] = p.id);
+          resultado.forEach(p => {
+            p.id = idsExistentes[p.nome.toLowerCase()] || 'imp' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            p.disponivel = true;
+          });
+          const juntado = [...lista];
+          resultado.forEach(item => {
+            const existente = juntado.find(p => p.id === item.id);
+            if (existente) Object.assign(existente, item);
+            else juntado.push(item);
+          });
+          M.salvarProdutos(juntado);
+          renderProdutos();
+          toast('Importados/atualizados ' + resultado.length + ' produtos!');
+        } catch (err) {
+          console.error(err);
+          toast('Falha ao ler o arquivo: ' + err.message, 'err');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+      e.target.value = '';
+    });
+
+    function parseCSV(texto) {
+      const linhas = texto.replace(/\r/g, '').split('\n').filter(l => l.trim());
+      const delim = linhas[0].includes(';') ? ';' : ',';
+      const cab = linhas[0].split(delim).map(h => h.trim());
+      return linhas.slice(1).map(l => {
+        const partes = l.split(delim);
+        const o = {};
+        cab.forEach((h, i) => o[h] = (partes[i] || '').trim());
+        return o;
+      });
+    }
+
+    function converterLinhas(rows) {
+      const aceita = {
+        nome: ['nome', 'produto', 'produto', 'item', 'descri'],
+        categoria: ['categoria', 'departamento', 'setor', 'cat'],
+        preco: ['preco', 'preço', 'valor', 'price'],
+        unidade: ['unidade', 'unid', 'unit', 'embalagem'],
+        emoji: ['emoji', 'icone', 'ícone', 'imagem'],
+        descricao: ['descricao', 'descrição', 'desc', 'observacao'],
+      };
+      const chave = (obj, lista) => {
+        const k = Object.keys(obj).find(k2 => lista.some(a => k2.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(a)));
+        return k ? obj[k] : '';
+      };
+      const saida = [];
+      rows.forEach(r => {
+        const nome = String(chave(r, aceita.nome) || '').trim();
+        const categoria = String(chave(r, aceita.categoria) || 'Geral').trim();
+        let preco = String(chave(r, aceita.preco) || '').replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+        preco = parseFloat(preco);
+        if (!nome || !(preco > 0)) return;
+        saida.push({
+          nome,
+          categoria: categoria || 'Geral',
+          preco,
+          unidade: String(chave(r, aceita.unidade) || '').trim() || 'un',
+          emoji: String(chave(r, aceita.emoji) || '').trim() || '🛒',
+          descricao: String(chave(r, aceita.descricao) || '').trim(),
+        });
+      });
+      return saida;
+    }
+
+    function exportarExcel() {
+      const dados = M.produtos().map(p => ({
+        Nome: p.nome, Categoria: p.categoria, Preco: p.preco,
+        Unidade: p.unidade || '', Emoji: p.emoji || '', Descricao: p.descricao || '',
+      }));
+      const ws = XLSX.utils.json_to_sheet(dados);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+      XLSX.writeFile(wb, 'catalogo_mercado.xlsx');
+    }
+
+    function baixarModelo() {
+      const dados = PRODUTOS_MODELO;
+      const ws = XLSX.utils.json_to_sheet(dados);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Modelo');
+      XLSX.writeFile(wb, 'modelo_catalogo.xlsx');
+      toast('Modelo baixado — preencha e importe no botão de importar.');
+    }
+    const PRODUTOS_MODELO = [
+      { Nome: 'Arroz Tipo 1', Categoria: 'Mercearia', Preco: 29.9, Unidade: '5kg', Emoji: '🌾', Descricao: 'Saco 5 kg' },
+      { Nome: 'Feijão Carioca', Categoria: 'Mercearia', Preco: 9.9, Unidade: '1kg', Emoji: '🫘', Descricao: 'Saco 1 kg' },
+      { Nome: 'Banana Prata', Categoria: 'Hortifrúti', Preco: 4.99, Unidade: 'kg', Emoji: '🍌', Descricao: 'Resistente e doce' },
+      { Nome: 'Leite Integral 1L', Categoria: 'Laticínios', Preco: 4.79, Unidade: 'un', Emoji: '🥛', Descricao: 'Caixinha 1 litro' },
+    ];
+
+    function carregarConfig() {
+      const c = M.config();
+      document.getElementById('subNome').textContent = c.nomeMercado;
+      const g = id => document.getElementById(id);
+      g('c_nome').value = c.nomeMercado;
+      g('c_slogan').value = c.slogan || '';
+      g('c_whats').value = c.whatsapp || '';
+      g('c_horario').value = c.horario || '';
+      g('c_taxa').value = c.taxaEntrega;
+      g('c_freteGratis').value = c.freteGratisAcima;
+      g('c_minimo').value = c.pedidoMinimo;
+    }
+    function salvarConfig() {
+      const g = id => document.getElementById(id);
+      const cfg = {
+        nomeMercado: g('c_nome').value.trim() || 'Meu Mercado',
+        slogan: g('c_slogan').value.trim(),
+        whatsapp: g('c_whats').value.trim(),
+        horario: g('c_horario').value.trim(),
+        taxaEntrega: parseFloat(g('c_taxa').value) || 0,
+        freteGratisAcima: parseFloat(g('c_freteGratis').value) || 0,
+        pedidoMinimo: parseFloat(g('c_minimo').value) || 0,
+      };
+      M.salvarConfig(cfg);
+      document.getElementById('subNome').textContent = cfg.nomeMercado;
+      toast('Configurações salvas! A loja já reflete as mudanças.');
+    }
+
+    function exportarJSON() {
+      const blobPedidos = new Blob([JSON.stringify(M.pedidos(), null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blobPedidos);
+      a.download = 'pedidos_backup.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function esc(s) {
+      const div = document.createElement('div');
+      div.textContent = s == null ? '' : s;
+      return div.innerHTML;
+    }
+    function fmtData(iso) {
+      try {
+        return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      } catch (e) { return ''; }
+    }
+
+    setInterval(() => {
+      if (M.viaServidor()) {
+        M.sincronizar().then(mudou => {
+          if (tabAtual === 'pedidos') listarPedidos();
+          else if (tabAtual === 'produtos') renderProdutos();
+        });
+      } else if (tabAtual === 'pedidos') {
+        listarPedidos();
+      }
+    }, 5000);
+
+    M.iniciar().then(() => listarPedidos());
+  </script>
+</body>
+</html>
