@@ -55,3 +55,5 @@ carregado antes de demonstrar.
 - Armazenamento KV: até 1 GB.
 - Requests de Functions: 100.000/dia.
 - Banda de estáticos: ilimitada.
+
+
