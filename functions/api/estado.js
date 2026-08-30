@@ -1,4 +1,4 @@
-const CHAVE = 'estado.v1';
+const CHAVE = 'estado.v2';
 
 function mergeEstado(atual, novo) {
   const mapPedidos = new Map();
