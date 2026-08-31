@@ -213,7 +213,6 @@
     <button class="active" data-tab="pedidos" onclick="tab('pedidos')">📦 Pedidos</button>
     <button data-tab="produtos" onclick="tab('produtos')">🛒 Produtos</button>
     <button data-tab="config" onclick="tab('config')">⚙️ Configurações</button>
-    <button data-tab="demo" onclick="tab('demo')">📋 Apresentação</button>
   </nav>
 
   <main>
@@ -300,79 +299,6 @@
       </div>
     </section>
 
-    <!-- APRESENTAÇÃO -->
-    <section class="tab" id="tab-demo">
-      <div class="form-card demo-head">
-        <h3>🎤 Roteiro de apresentação — 2 minutos</h3>
-        <p>Este é o passo a passo para demonstrar o app ao dono do mercado. Cada passo tem o que <b>falar</b> e o que <b>fazer</b> ao vivo na tela.</p>
-        <div class="toolbar" style="margin-top:14px">
-          <button class="btn" onclick="abrirLojinha()">👉 Abrir a loja (index.html)</button>
-          <button class="btn ghost" onclick="pedidoTeste()">➕ Pedido de teste</button>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">1</div>
-        <div class="conteudo">
-          <b>Abra a loja e mostre o catálogo</b>
-          <p>Clique em "abrir a loja" e deixe o painel de lado. Diga: <i>"Esta é a vitrine digital do mercado — com fotos, preços e categorias, igual ao que o cliente já conhece."</i></p>
-          <div class="fazer">Faça: mude entre as categorias (padaria, bebidas...) e digite algo na busca (ex.: "arroz").</div>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">2</div>
-        <div class="conteudo">
-          <b>Monte um pedido ao vivo</b>
-          <p>Diga: <i>"O cliente escolhe tudo e vai vendo o carrinho na parte de baixo — total sempre atualizado."</i></p>
-          <div class="fazer">Faça: toque em "Adicionar" em 3 produtos e clique no carrinho.</div>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">3</div>
-        <div class="conteudo">
-          <b>Finalize o checkout</b>
-          <p>Diga: <i>"Entrega com dados completos e pagamento escolhido na hora — dinheiro, PIX ou cartão na maquininha."</i></p>
-          <div class="fazer">Faça: preencha nome, endereço e bairro, escolha "PIX" e confirme. Mostre o <b>código do pedido</b> na tela.</div>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">4</div>
-        <div class="conteudo">
-          <b>Mostre o pedido chegando no painel</b>
-          <p>Volte ao painel (aba Pedidos) e diga: <i>"Na hora, o pedido chega aqui com endereço, itens e forma de pagamento. O mercado acompanha cada etapa até a entrega."</i></p>
-          <div class="fazer">Faça: clique em "Confirmar", "Iniciar preparo" e "Enviar p/ entrega" para mostrar o status mudando.</div>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">5</div>
-        <div class="conteudo">
-          <b>Mostre o rastreio do cliente</b>
-          <p>Diga: <i>"O cliente acompanha o pedido pela tela do celular com o código recebido."</i></p>
-          <div class="fazer">Faça: na loja, toque em "Rastrear meu pedido", digite o código e mostre a linha do tempo.</div>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">6</div>
-        <div class="conteudo">
-          <b>Produtos, planilha e personalização</b>
-          <p>Diga: <i>"O mercado cadastra produtos na hora ou importa direto de uma planilha Excel que ele já usa. Nome, logotipo, taxa e frete grátis são todos ajustáveis."</i></p>
-          <div class="fazer">Faça: vá na aba Produtos, mostre o botão de importar e o "Baixar modelo". Na aba Configurações, troque o nome do mercado na frente deles.</div>
-        </div>
-      </div>
-
-      <div class="passo">
-        <div class="numero">💡</div>
-        <div class="conteudo">
-          <b>Feche a venda</b>
-          <p class="destaque">"Com esse sistema o seu mercado nunca fica fora do alcance dos clientes — que pedem pelo celular e recebem em casa. Podemos ativar com os seus produtos e a sua regra de entrega no valor que combinarmos."</p>
-        </div>
-      </div>
-    </section>
   </main>
 
   <div class="alert" id="toast"></div>
@@ -392,10 +318,6 @@
       if (t === 'produtos') renderProdutos();
       if (t === 'config') carregarConfig();
       if (t === 'demo') document.getElementById('subNome').textContent = M.config().nomeMercado;
-    }
-
-    function abrirLojinha() {
-      window.location.href = 'index.html';
     }
 
     function toast(msg, tipo) {
